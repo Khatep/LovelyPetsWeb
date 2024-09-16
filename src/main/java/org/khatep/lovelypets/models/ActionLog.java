@@ -4,12 +4,10 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Getter
@@ -17,42 +15,34 @@ import java.util.Objects;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "products")
-public class Product {
+@Table(name = "action_logs")
+public class ActionLog {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "product_id")
-    private Long productId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "action_log_id")
+    private Long actionLogId;
 
-    @NotBlank(message = "Name should be not empty")
-    @NotNull
-    @Column(name = "name")
-    @Size(min = 5, max = 70)
-    private String name;
+    @NotNull(message = "Action date is not be empty")
+    @Column(name = "action_date")
+    private LocalDateTime actionDate;
 
-    @NotBlank(message = "Description should be not empty")
-    @NotNull
+    @NotBlank(message = "Password should be not empty")
+    @NotNull(message = "Password should be not empty")
     @Column(name = "description")
-    @Size(min = 10, max = 150)
+    @Size(min = 0, max = 150)
     private String description;
 
-    @NotNull
+    @NotNull(message = "Admin should be not empty")
     @ManyToOne
-    @JoinColumn(name = "category_id", referencedColumnName = "category_id")
-    private Category category;
-
-    @NotNull
-    @Column(name = "price")
-    private Long price;
+    @JoinColumn(name = "admin_id", referencedColumnName = "admin_id")
+    private Admin admin;
 
     @Override
     public String toString() {
-        return "Product{" +
-                "productId=" + productId +
-                ", name='" + name + '\'' +
+        return "ActionLog{" +
+                "actionLogId=" + actionLogId +
+                ", actionDate=" + actionDate +
                 ", description='" + description + '\'' +
-                ", category=" + category +
-                ", price=" + price +
                 '}';
     }
 
@@ -69,15 +59,16 @@ public class Product {
                 .getPersistentClass()
                 : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
-        Product product = (Product) o;
-        return getProductId() != null && Objects.equals(getProductId(), product.getProductId());
+        ActionLog actionLog = (ActionLog) o;
+        return getActionLogId() != null && Objects.equals(getActionLogId(), actionLog.getActionLogId());
     }
 
     @Override
     public final int hashCode() {
         return this instanceof HibernateProxy
                 ? ((HibernateProxy) this).getHibernateLazyInitializer()
-                .getPersistentClass().hashCode()
+                .getPersistentClass()
+                .hashCode()
                 : getClass().hashCode();
     }
 }

@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.proxy.HibernateProxy;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -13,28 +14,28 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-@Entity
-@Table(name = "carts")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Entity
+@Table(name = "carts")
 public class Cart {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "cart_id")
     private Long cartId;
 
-    @NotNull
+    @NotNull(message = "Total price should be not empty")
     @Column(name = "total_price")
     private BigDecimal totalPrice = BigDecimal.ZERO;
 
-    @NotNull
+    @NotNull(message = "Update date should be not empty")
     @Column(name = "update_date")
     private LocalDateTime updatedDate;
 
     @NotNull
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinTable(
             name = "cart_products",
             joinColumns = @JoinColumn(name = "cart_id"),
@@ -42,7 +43,7 @@ public class Cart {
     )
     private List<Product> products = new ArrayList<>();
 
-    @NotNull
+    @NotNull(message = "Cart should be not empty")
     @OneToOne(mappedBy = "cart", cascade = CascadeType.ALL)
     private User user;
 
@@ -57,16 +58,36 @@ public class Cart {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Cart cart = (Cart) o;
-        return Objects.equals(cartId, cart.cartId) && Objects.equals(totalPrice, cart.totalPrice) && Objects.equals(updatedDate, cart.updatedDate) && Objects.equals(products, cart.products) && Objects.equals(user, cart.user);
+    public String toString() {
+        return "Cart{" +
+                "cartId=" + cartId +
+                ", totalPrice=" + totalPrice +
+                ", updatedDate=" + updatedDate +
+                '}';
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(cartId, totalPrice, updatedDate, products, user);
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy
+                ? ((HibernateProxy) o).getHibernateLazyInitializer()
+                .getPersistentClass()
+                : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy
+                ? ((HibernateProxy) this).getHibernateLazyInitializer()
+                .getPersistentClass()
+                : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        Cart cart = (Cart) o;
+        return getCartId() != null && Objects.equals(getCartId(), cart.getCartId());
+    }
+
+    @Override
+    public final int hashCode() {
+        return this instanceof HibernateProxy
+                ? ((HibernateProxy) this).getHibernateLazyInitializer()
+                .getPersistentClass().hashCode()
+                : getClass().hashCode();
     }
 }
-
