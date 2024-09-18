@@ -12,6 +12,8 @@ import org.khatep.lovelypets.enums.ShippingMethod;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Getter
@@ -28,6 +30,7 @@ public class Order {
 
     @NotNull(message = "Order date should not be empty")
     @Column(name = "order_date")
+
     private LocalDateTime orderDate;
 
     @NotNull(message = "Status should not be empty")
@@ -45,9 +48,17 @@ public class Order {
     private ShippingMethod shippingMethod;
 
     @NotNull(message = "User should not be empty")
-    @ManyToOne
-    @JoinColumn(name = "user_id")
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id")
     private User user;
+
+    @ManyToMany
+    @JoinTable(
+            name = "orders_products",
+            joinColumns = @JoinColumn(name = "order_id"),
+            inverseJoinColumns = @JoinColumn(name = "product_id")
+    )
+    private List<Product> products = new ArrayList<>();
 
     @Override
     public String toString() {
@@ -79,8 +90,8 @@ public class Order {
 
     @Override
     public final int hashCode() {
-        return this instanceof HibernateProxy
-                ? ((HibernateProxy) this).getHibernateLazyInitializer()
+        return this instanceof HibernateProxy hibernateProxy
+                ? hibernateProxy.getHibernateLazyInitializer()
                 .getPersistentClass().hashCode()
                 : getClass().hashCode();
     }

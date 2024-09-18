@@ -9,8 +9,11 @@ import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 import org.khatep.lovelypets.enums.Gender;
 import org.khatep.lovelypets.enums.Role;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Getter
@@ -50,6 +53,7 @@ public class User {
 
     @NotNull(message = "Birth date should be not empty")
     @Column(name = "birth_date")
+    @DateTimeFormat(pattern = "dd/MM/yyyy")
     private LocalDate birthDate;
 
     @NotBlank(message = "Phone number should be not empty")
@@ -59,7 +63,7 @@ public class User {
     private String phoneNumber;
 
     @NotNull(message = "Address should be not empty")
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "address_id", referencedColumnName = "address_id")
     private Address address;
 
@@ -74,9 +78,12 @@ public class User {
     private Gender gender;
 
     @NotNull(message = "Cart should be not empty")
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "cart_id", referencedColumnName = "cart_id")
     private Cart cart;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Order> orders = new ArrayList<>();
 
     @Override
     public String toString() {
@@ -113,8 +120,8 @@ public class User {
 
     @Override
     public final int hashCode() {
-        return this instanceof HibernateProxy
-                ? ((HibernateProxy) this).getHibernateLazyInitializer()
+        return this instanceof HibernateProxy hibernateProxy
+                ? hibernateProxy.getHibernateLazyInitializer()
                 .getPersistentClass().hashCode()
                 : getClass().hashCode();
     }

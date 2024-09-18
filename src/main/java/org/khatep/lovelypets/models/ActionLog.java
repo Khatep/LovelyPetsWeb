@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -23,17 +24,18 @@ public class ActionLog {
     private Long actionLogId;
 
     @NotNull(message = "Action date is not be empty")
+    @DateTimeFormat(pattern = "dd/MM/yyyy")
     @Column(name = "action_date")
     private LocalDateTime actionDate;
 
-    @NotBlank(message = "Password should be not empty")
-    @NotNull(message = "Password should be not empty")
+    @NotBlank(message = "Description should be not empty")
+    @NotNull(message = "Description should be not empty")
     @Column(name = "description")
-    @Size(min = 0, max = 150)
+    @Size(min = 5, max = 150)
     private String description;
 
     @NotNull(message = "Admin should be not empty")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "admin_id", referencedColumnName = "admin_id")
     private Admin admin;
 
@@ -65,8 +67,8 @@ public class ActionLog {
 
     @Override
     public final int hashCode() {
-        return this instanceof HibernateProxy
-                ? ((HibernateProxy) this).getHibernateLazyInitializer()
+        return this instanceof HibernateProxy hibernateProxy
+                ? hibernateProxy.getHibernateLazyInitializer()
                 .getPersistentClass()
                 .hashCode()
                 : getClass().hashCode();

@@ -33,14 +33,14 @@ public class Category {
     @Size(min = 2, max = 50)
     private String name;
 
-    @NotBlank(message = "Surname should be not empty")
-    @NotNull(message = "Surname should be not empty")
-    @Column(name = "surname")
+    @NotBlank(message = "Description should be not empty")
+    @NotNull(message = "Description should be not empty")
+    @Column(name = "description")
     @Size(min = 10, max = 150)
     private String description;
 
     @NotNull
-    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     List<Product> products = new ArrayList<>();
 
     @Override
@@ -68,11 +68,11 @@ public class Category {
         Category category = (Category) o;
         return getCategoryId() != null && Objects.equals(getCategoryId(), category.getCategoryId());
     }
-
+    
     @Override
     public final int hashCode() {
-        return this instanceof HibernateProxy
-                ? ((HibernateProxy) this).getHibernateLazyInitializer()
+        return this instanceof HibernateProxy hibernateProxy
+                ? hibernateProxy.getHibernateLazyInitializer()
                 .getPersistentClass().hashCode()
                 : getClass().hashCode();
     }

@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.proxy.HibernateProxy;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -31,20 +32,21 @@ public class Cart {
     private BigDecimal totalPrice = BigDecimal.ZERO;
 
     @NotNull(message = "Update date should be not empty")
+    @DateTimeFormat(pattern = "dd/MM/yyyy")
     @Column(name = "update_date")
     private LocalDateTime updatedDate;
 
     @NotNull
-    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}, fetch = FetchType.LAZY)
     @JoinTable(
-            name = "cart_products",
+            name = "carts_products",
             joinColumns = @JoinColumn(name = "cart_id"),
             inverseJoinColumns = @JoinColumn(name = "product_id")
     )
     private List<Product> products = new ArrayList<>();
 
-    @NotNull(message = "Cart should be not empty")
-    @OneToOne(mappedBy = "cart", cascade = CascadeType.ALL)
+    @NotNull(message = "User should be not empty")
+    @OneToOne(mappedBy = "cart", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private User user;
 
     @PrePersist
@@ -85,8 +87,8 @@ public class Cart {
 
     @Override
     public final int hashCode() {
-        return this instanceof HibernateProxy
-                ? ((HibernateProxy) this).getHibernateLazyInitializer()
+        return this instanceof HibernateProxy hibernateProxy
+                ? hibernateProxy.getHibernateLazyInitializer()
                 .getPersistentClass().hashCode()
                 : getClass().hashCode();
     }

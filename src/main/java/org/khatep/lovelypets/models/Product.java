@@ -25,19 +25,19 @@ public class Product {
     private Long productId;
 
     @NotBlank(message = "Name should be not empty")
-    @NotNull
+    @NotNull(message = "Name should be not empty")
     @Column(name = "name")
     @Size(min = 5, max = 70)
     private String name;
 
     @NotBlank(message = "Description should be not empty")
-    @NotNull
+    @NotNull(message = "Description should be not empty")
     @Column(name = "description")
     @Size(min = 10, max = 150)
     private String description;
 
     @NotNull
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id", referencedColumnName = "category_id")
     private Category category;
 
@@ -75,8 +75,8 @@ public class Product {
 
     @Override
     public final int hashCode() {
-        return this instanceof HibernateProxy
-                ? ((HibernateProxy) this).getHibernateLazyInitializer()
+        return this instanceof HibernateProxy hibernateProxy
+                ? hibernateProxy.getHibernateLazyInitializer()
                 .getPersistentClass().hashCode()
                 : getClass().hashCode();
     }

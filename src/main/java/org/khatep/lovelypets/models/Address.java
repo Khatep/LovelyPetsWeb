@@ -51,7 +51,7 @@ public class Address {
     private String numberOfHome;
 
     @NotNull(message = "User should be not empty")
-    @OneToOne(mappedBy = "address", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "address", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private User user;
 
     @Override
@@ -85,8 +85,8 @@ public class Address {
 
     @Override
     public final int hashCode() {
-        return this instanceof HibernateProxy
-                ? ((HibernateProxy) this).getHibernateLazyInitializer()
+        return this instanceof HibernateProxy hibernateProxy
+                ? hibernateProxy.getHibernateLazyInitializer()
                 .getPersistentClass().hashCode()
                 : getClass().hashCode();
     }

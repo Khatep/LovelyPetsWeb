@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.proxy.HibernateProxy;
 import org.khatep.lovelypets.enums.Role;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -57,7 +58,7 @@ public class Admin {
     @Column(name = "role")
     private Role role = Role.ADMIN;
 
-    @OneToMany(mappedBy = "admin", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "admin",  cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ActionLog> actionLogs = new ArrayList<>();
 
     @NotNull(message = "Active should be not empty")
@@ -65,6 +66,7 @@ public class Admin {
     private boolean active;
 
     @NotNull(message = "Last Login Time should be not empty")
+    @DateTimeFormat(pattern = "dd/MM/yyyy")
     @Column(name = "last_login_time")
     private LocalDateTime lastLoginTime;
 
@@ -101,8 +103,8 @@ public class Admin {
 
     @Override
     public final int hashCode() {
-        return this instanceof HibernateProxy
-                ? ((HibernateProxy) this).getHibernateLazyInitializer()
+        return this instanceof HibernateProxy hibernateProxy
+                ? hibernateProxy.getHibernateLazyInitializer()
                 .getPersistentClass().hashCode()
                 : getClass().hashCode();
     }
